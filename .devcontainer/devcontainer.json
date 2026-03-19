@@ -1,0 +1,28 @@
+{
+  "name": "Project Ultrack Dev Container",
+  "image": "pytorch/pytorch:2.10.0-cuda13.0-cudnn9-runtime",
+  "runArgs": [ "--gpus", "all", "--init", "--cpus", "40.0", "--name", "ultrack-dev-container"],
+  
+  // OPTIONAL: Mount a shared cache so 'uv' doesn't re-download small packages 5 times
+  "mounts": [
+    "source=uv-cache,target=/root/.cache/uv,type=volume",
+    "source=D:\\AG,target=/root/data,type=bind"
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.uv"]
+    }
+  },
+
+  "containerEnv": {
+      "PIP_BREAK_SYSTEM_PACKAGES": "1",
+      "UV_SYSTEM_PYTHON": "1",
+      "OMP_NUM_THREADS": "1",       // Crucial: Limits C++ threads to X
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+  },
+  // Once the container is created, install specific tools
+  // we use --system to use the global python (with torch pre-installed)
+  "postCreateCommand": "apt-get update && apt-get install -y git && apt-get install -y build-essential libgl1 libglib2.0-0 libxcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 && pip install uv && uv pip install --break-system-packages --system -e ."
+}
